@@ -1,5 +1,7 @@
 # godevtool
 
+[![CI](https://github.com/nahaktarun/godevtool/actions/workflows/ci.yml/badge.svg)](https://github.com/nahaktarun/godevtool/actions/workflows/ci.yml)
+
 A comprehensive developer debugging toolkit for Go applications.
 
 **Zero external dependencies. 26 packages. 180 tests. Real-time web dashboard.**
