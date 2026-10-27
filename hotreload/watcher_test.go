@@ -65,8 +65,11 @@ func TestDetectChanges(t *testing.T) {
 	w.snapshot() // take initial snapshot
 
 	// modify file
-	time.Sleep(100 * time.Millisecond)
 	os.WriteFile(testFile, []byte("package main\n// changed"), 0644)
+	futureTime := time.Now().Add(2 * time.Second)
+	if err := os.Chtimes(testFile, futureTime, futureTime); err != nil {
+		t.Fatalf("failed to update file mtime: %v", err)
+	}
 
 	changes := w.detectChanges()
 	if len(changes) == 0 {
@@ -138,8 +141,11 @@ func TestOnEventCallback(t *testing.T) {
 	)
 	w.snapshot()
 
-	time.Sleep(100 * time.Millisecond)
 	os.WriteFile(testFile, []byte("package main\n// v2"), 0644)
+	futureTime := time.Now().Add(2 * time.Second)
+	if err := os.Chtimes(testFile, futureTime, futureTime); err != nil {
+		t.Fatalf("failed to update file mtime: %v", err)
+	}
 
 	changes := w.detectChanges()
 	if len(changes) == 0 {
