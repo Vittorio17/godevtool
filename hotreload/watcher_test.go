@@ -61,7 +61,7 @@ func TestDetectChanges(t *testing.T) {
 	testFile := filepath.Join(dir, "main.go")
 	os.WriteFile(testFile, []byte("package main"), 0644)
 
-	w := New(WithDirs(dir))
+	w := New(WithDirs(dir), WithExclude("vendor"))
 	w.snapshot() // take initial snapshot
 
 	// modify file
@@ -72,11 +72,6 @@ func TestDetectChanges(t *testing.T) {
 	}
 
 	changes := w.detectChanges()
-	if len(changes) == 0 {
-		time.Sleep(100 * time.Millisecond)
-		os.WriteFile(testFile, []byte("package main\n// changed retry"), 0644)
-		changes = w.detectChanges()
-	}
 	if len(changes) != 1 {
 		t.Fatalf("changes = %d, want 1", len(changes))
 	}
@@ -135,6 +130,7 @@ func TestOnEventCallback(t *testing.T) {
 	var events []Event
 	w := New(
 		WithDirs(dir),
+		WithExclude("vendor"),
 		WithOnEvent(func(evt Event) {
 			events = append(events, evt)
 		}),
@@ -148,11 +144,6 @@ func TestOnEventCallback(t *testing.T) {
 	}
 
 	changes := w.detectChanges()
-	if len(changes) == 0 {
-		time.Sleep(100 * time.Millisecond)
-		os.WriteFile(testFile, []byte("package main\n// v2 retry"), 0644)
-		changes = w.detectChanges()
-	}
 
 	for _, evt := range changes {
 		if w.onEvent != nil {
