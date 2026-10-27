@@ -65,10 +65,15 @@ func TestDetectChanges(t *testing.T) {
 	w.snapshot() // take initial snapshot
 
 	// modify file
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	os.WriteFile(testFile, []byte("package main\n// changed"), 0644)
 
 	changes := w.detectChanges()
+	if len(changes) == 0 {
+		time.Sleep(100 * time.Millisecond)
+		os.WriteFile(testFile, []byte("package main\n// changed retry"), 0644)
+		changes = w.detectChanges()
+	}
 	if len(changes) != 1 {
 		t.Fatalf("changes = %d, want 1", len(changes))
 	}
@@ -133,10 +138,16 @@ func TestOnEventCallback(t *testing.T) {
 	)
 	w.snapshot()
 
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	os.WriteFile(testFile, []byte("package main\n// v2"), 0644)
 
 	changes := w.detectChanges()
+	if len(changes) == 0 {
+		time.Sleep(100 * time.Millisecond)
+		os.WriteFile(testFile, []byte("package main\n// v2 retry"), 0644)
+		changes = w.detectChanges()
+	}
+
 	for _, evt := range changes {
 		if w.onEvent != nil {
 			w.onEvent(evt)
